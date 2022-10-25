@@ -78,43 +78,48 @@ const divisasDB = [
 const containerFrom = document.getElementById("selectFrom");
 const divisaSymbol = divisasDB.map((x) => `<option>${x.symbol.toUpperCase()}</option>`);
 containerFrom.innerHTML = ["<option disabled selected>Select an option</option>", ...divisaSymbol];
+const option = document.getElementsByClassName("option");
+const amount = document.querySelector("#amount");
+amount.value = "";
+const buttonConvert = document.querySelector("#button_amount");
 
 const containerTo = document.getElementById("selectTo");
 containerTo.innerHTML = ["<option disabled selected>Select an option</option>", ...divisaSymbol];
 
-const solicitarDatos = () => {
-  const opciones = [];
-  const divisa1 = prompt("Escriba la divisa origen:").toLowerCase();
-  const divisa2 = prompt("Escriba la divisa destino:").toLowerCase();
-  const cantidad = parseFloat(prompt("Ingrese cantidad:"));
-  opciones.push(divisa1);
-  opciones.push(divisa2);
-  opciones.push(cantidad);
+const valorSelect = {};
 
-  return opciones; // [divisa1, divisa2, cantidad]
+const saveLocalStorage = () => {
+  const valorSelectJson = JSON.stringify(valorSelect);
+  localStorage.setItem("valorSelect", valorSelectJson);
 };
 
-const convert = (datosConvert) => {
-  const nombreDivisa = divisasDB.find((x) => x.nombre == datosConvert[0])
-    || divisasDB.find((e) => e.symbol == datosConvert[0]);
+const convert = (e) => {
+  const nombreDivisa = divisasDB.find((x) => x.symbol == valorSelect.from.toLowerCase());
   if (nombreDivisa) {
     for (const key in nombreDivisa.tipoCambio) {
-      if (key == datosConvert[1]) {
-        const totalConvert = nombreDivisa.tipoCambio[key] * datosConvert[2];
-        alert(`la cantidad de ${datosConvert[0]} es igual a ${totalConvert.toLocaleString("es-CL")}`);
+      if (key == valorSelect.to.toLowerCase()) {
+        const totalConvert = nombreDivisa.tipoCambio[key] * parseInt(valorSelect.cantidad, 10);
+        saveLocalStorage();
+        alert(`la cantidad de ${valorSelect.from} es igual a ${totalConvert.toLocaleString("es-CL")} ${valorSelect.to}`);
       }
     }
   }
 };
 
-let repetir = false;
-do {
-  const datosConvert = solicitarDatos();
-  convert(datosConvert);
-  const respuesta = prompt("Desea realizar otra conversion?\n1 - Si\n2 - No");
-  if (respuesta === "1") {
-    repetir = true;
-  } else {
-    repetir = false;
-  }
-} while (repetir);
+containerFrom.addEventListener("change", () => {
+  const valorOptionFrom = containerFrom.value;
+  valorSelect.from = valorOptionFrom;
+});
+
+containerTo.addEventListener("change", () => {
+  const valorOptionTo = containerTo.value;
+  valorSelect.to = valorOptionTo;
+});
+
+amount.addEventListener("keyup", () => {
+  valorSelect.cantidad = amount.value;
+});
+
+buttonConvert.addEventListener("click", (e) => {
+  convert(e);
+});
