@@ -1,109 +1,76 @@
+/* eslint-disable no-console */
 /* eslint-disable no-unused-vars */
 /* eslint-disable no-restricted-syntax */
-const divisasDB = [
-  {
-    nombre: "dolar",
-    symbol: "usd",
-    tipoCambio: {
-      clp: 938,
-      eur: 1.04,
-      gbp: 0.9,
-      ars: 149.19,
-      cny: 7.12,
-      usd: 1,
-    },
-  },
-  {
-    nombre: "euro",
-    symbol: "eur",
-    tipoCambio: {
-      clp: 914,
-      usd: 1.03,
-      gbp: 0.88,
-      ars: 145.39,
-      cny: 6.93,
-      eur: 1,
-    },
-  },
-  {
-    nombre: "peso chileno",
-    symbol: "clp",
-    tipoCambio: {
-      eur: 0.0011,
-      usd: 0.0011,
-      gbp: 0.0011,
-      ars: 0.16,
-      cny: 0.0076,
-      clp: 1,
-    },
-  },
-  {
-    nombre: "peso argentino",
-    symbol: "ars",
-    tipoCambio: {
-      clp: 6.29,
-      usd: 0.0067,
-      gbp: 0.01,
-      eur: 0.0069,
-      cny: 0.05,
-      ars: 1,
-    },
-  },
-  {
-    nombre: "libra esterlina",
-    symbol: "gbp",
-    tipoCambio: {
-      clp: 1040,
-      usd: 1.11,
-      eur: 1.14,
-      ars: 165.4,
-      cny: 7.89,
-      gbp: 1,
-    },
-  },
-  {
-    nombre: "yuan",
-    symbol: "cny",
-    tipoCambio: {
-      clp: 131.86,
-      usd: 0.14,
-      gbp: 0.13,
-      ars: 20.97,
-      eur: 0.14,
-      yuan: 1,
-    },
-  },
-];
 
 const containerFrom = document.getElementById("selectFrom");
-const divisaSymbol = divisasDB.map((x) => `<option>${x.symbol.toUpperCase()}</option>`);
-containerFrom.innerHTML = ["<option disabled selected>Select an option</option>", ...divisaSymbol];
 const option = document.getElementsByClassName("option");
-const amount = document.querySelector("#amount");
-amount.value = "";
+const amountField = document.querySelector("#amount");
+amountField.value = "";
 const buttonConvert = document.querySelector("#button_amount");
 
 const containerTo = document.getElementById("selectTo");
-containerTo.innerHTML = ["<option disabled selected>Select an option</option>", ...divisaSymbol];
 
 const valorSelect = {};
+const symbolsArray = [];
 
 const saveLocalStorage = () => {
   const valorSelectJson = JSON.stringify(valorSelect);
   localStorage.setItem("valorSelect", valorSelectJson);
 };
+SlickLoader.enable();
+const getSymbol = async () => {
+  const myHeaders = new Headers();
+  myHeaders.append("apikey", "nEdtbhCXABvdUi4WZ896WnJcWGlgUBFd");
 
-const convert = (e) => {
-  const nombreDivisa = divisasDB.find((x) => x.symbol == valorSelect.from.toLowerCase());
-  if (nombreDivisa) {
-    for (const key in nombreDivisa.tipoCambio) {
-      if (key == valorSelect.to.toLowerCase()) {
-        const totalConvert = nombreDivisa.tipoCambio[key] * parseInt(valorSelect.cantidad, 10);
-        saveLocalStorage();
-        alert(`la cantidad de ${valorSelect.from} es igual a ${totalConvert.toLocaleString("es-CL")} ${valorSelect.to}`);
-      }
-    }
+  const requestOptions = {
+    method: 'GET',
+    redirect: 'follow',
+    headers: myHeaders,
+  };
+  try {
+    const response = await fetch("https://api.apilayer.com/exchangerates_data/symbols", requestOptions);
+    const result = await response.json();
+    const data = result.symbols;
+    return data;
+  } catch (error) {
+    return error;
   }
+};
+SlickLoader.disable();
+const funcionSymbol = async () => {
+  const resultSymbols = await getSymbol();
+  const divisaSymbol = [];
+  // eslint-disable-next-line guard-for-in
+  for (const key in resultSymbols) {
+    divisaSymbol.push(`<option>${key}</option>`);
+  }
+  containerFrom.innerHTML = ["<option disabled selected>Select an option</option>", ...divisaSymbol];
+  containerTo.innerHTML = ["<option disabled selected>Select an option</option>", ...divisaSymbol];
+};
+funcionSymbol();
+
+const getData = async (to, from, amount) => {
+  const myHeaders = new Headers();
+  myHeaders.append("apikey", "nEdtbhCXABvdUi4WZ896WnJcWGlgUBFd");
+
+  const requestOptions = {
+    method: 'GET',
+    redirect: 'follow',
+    headers: myHeaders,
+  };
+  try {
+    const response = await fetch(`https://api.apilayer.com/exchangerates_data/convert?to=${to}&from=${from}&amount=${amount}`, requestOptions);
+    const result = await response.json();
+    const data = result.result;
+    return data;
+  } catch (error) {
+    return error;
+  }
+};
+
+const ejecutar = async () => {
+  const result = await getData(valorSelect.to, valorSelect.from, valorSelect.cantidad);
+  alert(`la cantidad de ${valorSelect.from} es igual a ${result.toLocaleString("de-DE")} ${valorSelect.to}`);
 };
 
 containerFrom.addEventListener("change", () => {
@@ -116,10 +83,10 @@ containerTo.addEventListener("change", () => {
   valorSelect.to = valorOptionTo;
 });
 
-amount.addEventListener("keyup", () => {
-  valorSelect.cantidad = amount.value;
+amountField.addEventListener("keyup", () => {
+  valorSelect.cantidad = amountField.value;
 });
 
 buttonConvert.addEventListener("click", (e) => {
-  convert(e);
+  ejecutar();
 });
