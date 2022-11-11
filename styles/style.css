@@ -127,6 +127,16 @@ main .formulario__divisa {
 
 }
 
+.result_container {
+    display: flex;
+    width: 500px;
+    display: inline-flex;
+    justify-content: flex-end;
+    align-items: flex-start;
+    margin-right: 700px;
+}
+    
+
 footer {
     bottom: 0;
     position: fixed;

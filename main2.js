@@ -7,7 +7,7 @@ const option = document.getElementsByClassName("option");
 const amountField = document.querySelector("#amount");
 amountField.value = "";
 const buttonConvert = document.querySelector("#button_amount");
-
+const resultContainer = document.querySelector(".result_container");
 const containerTo = document.getElementById("selectTo");
 
 const valorSelect = {};
@@ -20,7 +20,7 @@ const saveLocalStorage = () => {
 SlickLoader.enable();
 const getSymbol = async () => {
   const myHeaders = new Headers();
-  myHeaders.append("apikey", "nEdtbhCXABvdUi4WZ896WnJcWGlgUBFd");
+  myHeaders.append("apikey", "0d7f6RMH0xgyOIt8vMnKw61EmtwREKvu");
 
   const requestOptions = {
     method: 'GET',
@@ -51,7 +51,7 @@ funcionSymbol();
 
 const getData = async (to, from, amount) => {
   const myHeaders = new Headers();
-  myHeaders.append("apikey", "nEdtbhCXABvdUi4WZ896WnJcWGlgUBFd");
+  myHeaders.append("apikey", "0d7f6RMH0xgyOIt8vMnKw61EmtwREKvu");
 
   const requestOptions = {
     method: 'GET',
@@ -70,7 +70,7 @@ const getData = async (to, from, amount) => {
 
 const ejecutar = async () => {
   const result = await getData(valorSelect.to, valorSelect.from, valorSelect.cantidad);
-  alert(`la cantidad de ${valorSelect.from} es igual a ${result.toLocaleString("de-DE")} ${valorSelect.to}`);
+  resultContainer.innerHTML = `${amountField.value} ${valorSelect.from} es igual a ${result.toLocaleString("de-DE")} ${valorSelect.to}`;
 };
 
 containerFrom.addEventListener("change", () => {
