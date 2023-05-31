@@ -17,6 +17,7 @@ const saveLocalStorage = () => {
   const valorSelectJson = JSON.stringify(valorSelect);
   localStorage.setItem("valorSelect", valorSelectJson);
 };
+
 SlickLoader.enable();
 const getSymbol = async () => {
   const myHeaders = new Headers();
